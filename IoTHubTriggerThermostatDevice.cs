@@ -1,22 +1,27 @@
 using IoTHubTrigger = Microsoft.Azure.WebJobs.EventHubTriggerAttribute;
 
 using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Storage;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Azure.EventHubs;
 using System.Text;
 using System.Net.Http;
 using Microsoft.Extensions.Logging;
 using System;
+using System.IO;
 
 namespace SmartHome.Functions
 {
+    
     public class IoTHubTriggerThermostatDevice
     {
         private static HttpClient client = new HttpClient();
         
         [FunctionName("IoTHubTriggerThermostatDevice")]
+        [StorageAccount("AzureStateStorage")]
         public void Run(
             [IoTHubTrigger("iothub-ehub-iot-smarth-21108025-eb589840ae", Connection = "AzureIotHub")]EventData message, 
+            [Blob("home-state/thermostat/{message.SystemProperties[\"iothub-connection-device-id\"].ToString()}", FileAccess.Write)] out string state,
             //[DaprState("statestore", Key = "thermostat/thermostat-ac")] IAsyncCollector<string> state,
             DateTime enqueuedTimeUtc,
             Int64 sequenceNumber,
@@ -39,6 +44,8 @@ namespace SmartHome.Functions
             foreach (var property in properties){
                 log.LogInformation($"Property {property.Key}: {property.Value}");
             }
+
+            state = Encoding.UTF8.GetString(message.Body);
         }
     }
 }
