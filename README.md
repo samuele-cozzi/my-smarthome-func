@@ -1,3 +1,5 @@
+[![Deploy Azure Function .NET Code](https://github.com/samuele-cozzi/my-smarthome-func/actions/workflows/deploy-functions.yml/badge.svg)](https://github.com/samuele-cozzi/my-smarthome-func/actions/workflows/deploy-functions.yml)
+
 # my-smarthome-func
 
 ## Codespaces
@@ -21,3 +23,17 @@ sudo apt-get install azure-functions-core-tools-4
 ### Debug Locally
 
 Debug -> "Attach to .NET Framework"
+
+## Github Action
+
+
+
+## TODO
+
+- [ ] Trigger IotHub Function
+- [ ] Function settings
+- [ ] Functions Add Dapr
+- [ ] Business Logic of IotHub Function
+- [ ] Trigger Http API Home
+- [ ] CloudToDevice message
+- [ ] Trigger Http API Home Configuration
