@@ -4,12 +4,10 @@ public class AnalysisService : IAnalysisService{
     
     private readonly ILogger logger;
     private readonly IOptions<DaprSettings> settings;
-    private readonly DaprClient client;
     
     public AnalysisService(IOptions<DaprSettings> daprSettings, ILoggerFactory loggerFactory){
         logger = loggerFactory.CreateLogger("Start");
         settings = daprSettings;
-        client = new DaprClientBuilder().Build();
     }
 
     private List<HomeAnalysis> map(Home home){

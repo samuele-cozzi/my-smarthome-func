@@ -8,17 +8,20 @@ using System.Net.Http;
 using Microsoft.Extensions.Logging;
 using System;
 
-namespace SmartHome.Function
+namespace SmartHome.Functions
 {
     public class IoTHubTriggerThermostatDevice
     {
         private static HttpClient client = new HttpClient();
         
         [FunctionName("IoTHubTriggerThermostatDevice")]
-        public void Run([IoTHubTrigger("iothub-ehub-iot-smarth-21108025-eb589840ae", Connection = "AzureIotHub")]EventData message, 
+        public void Run(
+            [IoTHubTrigger("iothub-ehub-iot-smarth-21108025-eb589840ae", Connection = "AzureIotHub")]EventData message, 
+            //[DaprState("statestore", Key = "thermostat/thermostat-ac")] IAsyncCollector<string> state,
             DateTime enqueuedTimeUtc,
             Int64 sequenceNumber,
             string offset,
+            IDictionary<String,Object> properties,
             ILogger log)
         {
             log.LogInformation($"C# IoT Hub trigger function processed a message: {Encoding.UTF8.GetString(message.Body.Array)}");
@@ -32,6 +35,9 @@ namespace SmartHome.Function
             log.LogInformation($"EnqueuedTimeUtc={enqueuedTimeUtc}");
             log.LogInformation($"SequenceNumber={sequenceNumber}");
             log.LogInformation($"Offset={offset}");
+            foreach (var property in properties){
+                log.LogInformation($"Property {property.Key}: {property.Value}");
+            }
         }
     }
 }

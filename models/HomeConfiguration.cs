@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Localization;
-
 namespace home.api.models;
 
 public class HomeConfiguration {

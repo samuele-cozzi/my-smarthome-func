@@ -10,11 +10,11 @@ namespace SmartHome.Functions
         public override void Configure(IFunctionsHostBuilder builder)
         {
             //builder.Services.AddControllers().AddDapr();
-            builder.Services.Configure<DaprSettings>(builder.Configuration.GetSection(nameof(DaprSettings)));
+            //builder.Services.Configure<DaprSettings>(builder.Configuration.GetSection(nameof(DaprSettings)));
 
-            builder.Services.AddScoped<IConfigurationService, ConfigurationService>();
+            //builder.Services.AddScoped<IConfigurationService, ConfigurationService>();
             builder.Services.AddScoped<IAnalysisService, AnalysisService>();
-            builder.Services.AddScoped<IHomeService, HomeServices>();
+            //builder.Services.AddScoped<IHomeService, HomeServices>();
         }
     }
 }

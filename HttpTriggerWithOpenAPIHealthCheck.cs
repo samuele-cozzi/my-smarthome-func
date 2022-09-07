@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 
-namespace SmartHomeFunction
+namespace SmartHome.Functions
 {
     public class HttpTriggerWithOpenAPIHealthCheck
     {

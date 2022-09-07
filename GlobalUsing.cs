@@ -15,7 +15,7 @@ global using System.Net.Http;
 global using System.Net.Http.Headers;
 
 global using Dapr;
-global using Dapr.Client; 
+global using Dapr.AzureFunctions.Extension;
 
 global using home.api.models;
 global using home.api.config;
