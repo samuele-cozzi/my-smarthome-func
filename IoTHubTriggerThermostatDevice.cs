@@ -35,6 +35,7 @@ namespace SmartHome.Functions
             log.LogInformation($"EnqueuedTimeUtc={enqueuedTimeUtc}");
             log.LogInformation($"SequenceNumber={sequenceNumber}");
             log.LogInformation($"Offset={offset}");
+            log.LogInformation($"DeviceID={message.SystemProperties["iothub-connection-device-id"].ToString()}");
             foreach (var property in properties){
                 log.LogInformation($"Property {property.Key}: {property.Value}");
             }
