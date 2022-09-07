@@ -22,13 +22,13 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: 6.0.*
+        dotnet-version: ${{ env.DOTNET_VERSION }}
         
     - name: Restore dependencies
       run: dotnet restore
       
     - name: Build
-      run: dotnet build --no-restore --configuration Release --output {{env.AZURE_FUNCTIONAPP_PACKAGE_PATH}}/output
+      run: dotnet build --no-restore --configuration Release --output ${{env.AZURE_FUNCTIONAPP_PACKAGE_PATH}}/output
       
     - name: Test
       run: dotnet test --no-build --verbosity normal
