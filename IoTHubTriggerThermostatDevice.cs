@@ -9,6 +9,7 @@ using System.Net.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace SmartHome.Functions
 {
@@ -21,12 +22,10 @@ namespace SmartHome.Functions
         [StorageAccount("AzureStateStorage")]
         public void Run(
             [IoTHubTrigger("iothub-ehub-iot-smarth-21108025-eb589840ae", Connection = "AzureIotHub")]EventData message, 
-            [Blob("home-state/thermostat/{message.SystemProperties[\"iothub-connection-device-id\"].ToString()}", FileAccess.Write)] out string state,
-            //[DaprState("statestore", Key = "thermostat/thermostat-ac")] IAsyncCollector<string> state,
+            [Blob("home-state/triage/thermostat/{enqueuedTimeUtc}-{sequenceNumber}", FileAccess.Write)] out string state,
             DateTime enqueuedTimeUtc,
             Int64 sequenceNumber,
             string offset,
-            IDictionary<String,Object> properties,
             ILogger log)
         {
             log.LogInformation($"C# IoT Hub trigger function processed a message: {Encoding.UTF8.GetString(message.Body.Array)}");
@@ -41,11 +40,15 @@ namespace SmartHome.Functions
             log.LogInformation($"SequenceNumber={sequenceNumber}");
             log.LogInformation($"Offset={offset}");
             log.LogInformation($"DeviceID={message.SystemProperties["iothub-connection-device-id"].ToString()}");
-            foreach (var property in properties){
-                log.LogInformation($"Property {property.Key}: {property.Value}");
-            }
 
-            state = Encoding.UTF8.GetString(message.Body);
+            var thermostat = JsonConvert.DeserializeObject<HomeIotHub>(Encoding.UTF8.GetString(message.Body));
+
+            state = JsonConvert.SerializeObject(new Thermostat(){
+                deviceId = message.SystemProperties["iothub-connection-device-id"].ToString(),
+                heatIndex = (double )thermostat.heatIndex / thermostat.factor,
+                humidity = (double )thermostat.humidity / thermostat.factor,
+                temperature = (double )thermostat.temperature / thermostat.factor
+            });
         }
     }
 }
