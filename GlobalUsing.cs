@@ -14,10 +14,4 @@ global using Microsoft.Extensions.Logging;
 global using System.Net.Http;
 global using System.Net.Http.Headers;
 
-global using Dapr;
-global using Dapr.AzureFunctions.Extension;
-
 global using home.api.models;
-global using home.api.config;
-global using home.api.services;
-global using home.api.services.interfaces;

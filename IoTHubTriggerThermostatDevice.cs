@@ -22,13 +22,17 @@ namespace SmartHome.Functions
         [StorageAccount("AzureStateStorage")]
         public void Run(
             [IoTHubTrigger("iothub-ehub-iot-smarth-21108025-eb589840ae", Connection = "AzureIotHub")]EventData message, 
-            [Blob("home-state/triage/thermostat/{enqueuedTimeUtc}-{sequenceNumber}", FileAccess.Write)] out string state,
+            [Blob("home-state/home", FileAccess.ReadWrite)] string stateHome,
+            [Blob("home-state/thermostat/{SystemProperties.iothub-connection-device-id}", FileAccess.Write)] out string stateThermostat,
+            [Blob("home-state/hystory/{enqueuedTimeUtc.Year}/{enqueuedTimeUtc.Month}/{enqueuedTimeUtc.Day}/{enqueuedTimeUtc.Hour}:{enqueuedTimeUtc.Minute}-home", FileAccess.Write)] out string stateHistory,
             DateTime enqueuedTimeUtc,
             Int64 sequenceNumber,
             string offset,
             ILogger log)
         {
             log.LogInformation($"C# IoT Hub trigger function processed a message: {Encoding.UTF8.GetString(message.Body.Array)}");
+
+            // 1. Logging input
 
             log.LogInformation($"Event: {Encoding.UTF8.GetString(message.Body)}");
             // Metadata accessed by binding to EventData
@@ -40,15 +44,67 @@ namespace SmartHome.Functions
             log.LogInformation($"SequenceNumber={sequenceNumber}");
             log.LogInformation($"Offset={offset}");
             log.LogInformation($"DeviceID={message.SystemProperties["iothub-connection-device-id"].ToString()}");
+            string DeviceID = message.SystemProperties["iothub-connection-device-id"].ToString();
 
-            var thermostat = JsonConvert.DeserializeObject<HomeIotHub>(Encoding.UTF8.GetString(message.Body));
+            // 2. Write Thermostat
 
-            state = JsonConvert.SerializeObject(new Thermostat(){
-                deviceId = message.SystemProperties["iothub-connection-device-id"].ToString(),
-                heatIndex = (double )thermostat.heatIndex / thermostat.factor,
-                humidity = (double )thermostat.humidity / thermostat.factor,
-                temperature = (double )thermostat.temperature / thermostat.factor
-            });
+            var thermostatIoT = JsonConvert.DeserializeObject<HomeIotHub>(Encoding.UTF8.GetString(message.Body));
+
+            var thermostat = new Thermostat(){
+                deviceId = DeviceID,
+                heatIndex = (double )thermostatIoT.heatIndex / thermostatIoT.factor,
+                humidity = (double )thermostatIoT.humidity / thermostatIoT.factor,
+                temperature = (double )thermostatIoT.temperature / thermostatIoT.factor
+            };
+
+            stateThermostat = JsonConvert.SerializeObject(thermostat);
+
+            // 3. Write Home
+
+            var home = JsonConvert.DeserializeObject<Home>(stateHome);
+
+            home.Thermostats.RemoveAll(x => x.deviceId == DeviceID);
+            home.Thermostats.Add(thermostat);
+            
+            stateHome = JsonConvert.SerializeObject(home);
+
+            // 4. Write History
+            
+            stateHistory = stateHome;
+
+            // 5. Write Analytics
+
+            List<HomeAnalysis> analysis = new List<HomeAnalysis>();
+
+            List<string> devices = new List<string>();
+            foreach (var room in home.Configuration.Rooms){
+                foreach (var device in room.Devices){
+                    if (!devices.Contains(device.Id)) devices.Add(device.Id);
+                }
+            }
+
+            foreach (var deviceId in devices){
+                var thermostatAnalytics = home.Thermostats.FirstOrDefault(x => x.deviceId == deviceId);
+                var airConditionerAnalytics = home.AirConditioners.FirstOrDefault(x => x.DeviceId == deviceId);
+
+                analysis.Add(new HomeAnalysis(){
+                    DeviceId = deviceId,
+                    Timestamp = DateTime.Now,
+                    HeatIndex = thermostatAnalytics?.heatIndex,
+                    Humidity = thermostatAnalytics?.humidity,
+                    Temperature = thermostatAnalytics?.temperature,
+                    TargetHeatIndex = home.Configuration.TargetTemperature,
+                    TargetHumidity = home.Configuration.TargetHumidity,
+                    TargetTemperature = home.Configuration.TargetTemperature,
+                    ACPower = airConditionerAnalytics?.Power,
+                    ACMode = airConditionerAnalytics?.Mode,
+                    ACTemp = airConditionerAnalytics?.Temp,
+                    ACFan = airConditionerAnalytics?.Fan
+                });
+            }
+
+            var response = client.PostAsJsonAsync<List<HomeAnalysis>>(Environment.GetEnvironmentVariable("PowerBIUrl"), analysis).Result;
+            log.LogInformation($"{response.StatusCode}");
         }
     }
 }
