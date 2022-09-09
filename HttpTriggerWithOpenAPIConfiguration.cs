@@ -35,6 +35,8 @@ namespace SmartHome.Functions
             _logger.LogInformation("C# HTTP trigger function processed a request.");
 
             if (req.Method == HttpMethod.Get.ToString()){
+                HomeConfiguration data = JsonConvert.DeserializeObject<HomeConfiguration>(reader);
+                await writer.WriteLineAsync(JsonConvert.SerializeObject(data));
                 return new OkObjectResult(reader);
             }
             else if (req.Method == HttpMethod.Post.ToString()){
