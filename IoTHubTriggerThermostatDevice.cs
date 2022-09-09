@@ -59,6 +59,8 @@ namespace SmartHome.Functions
 
             stateThermostat = JsonConvert.SerializeObject(thermostat);
 
+            log.LogInformation($"Thermostat Saved");
+
             // 3. Write Home
 
             var home = JsonConvert.DeserializeObject<Home>(stateHome);
@@ -68,9 +70,13 @@ namespace SmartHome.Functions
             
             stateHome = JsonConvert.SerializeObject(home);
 
+            log.LogInformation($"Home Saved");
+
             // 4. Write History
             
             stateHistory = stateHome;
+
+            log.LogInformation($"History Saved");
 
             // 5. Write Analytics
 
