@@ -27,20 +27,21 @@ namespace SmartHome.Functions
         [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(HomeConfiguration))]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
         public async Task<IActionResult> Run(
-            [Blob("home-state/home_configuration", FileAccess.ReadWrite)] string state,
+            [Blob("home-state/home_configuration", FileAccess.Read)] string reader,
+            [Blob("home-state/home_configuration", FileAccess.Write)] TextWriter writer,
             [HttpTrigger(AuthorizationLevel.Anonymous, "get","post", Route = null)] HttpRequest req
         )
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
 
             if (req.Method == HttpMethod.Get.ToString()){
-                return new OkObjectResult(state);
+                return new OkObjectResult(reader);
             }
             else if (req.Method == HttpMethod.Post.ToString()){
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
                 HomeConfiguration data = JsonConvert.DeserializeObject<HomeConfiguration>(requestBody);
-                state = JsonConvert.SerializeObject(data);
-                return new OkObjectResult(state);
+                await writer.WriteLineAsync(JsonConvert.SerializeObject(data));
+                return new OkObjectResult("OK");
             }
             else {
 
