@@ -32,10 +32,20 @@ namespace SmartHome.Functions
         )
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
+            
+            var serviceClient = ServiceClient.CreateFromConnectionString(Environment.GetEnvironmentVariable("AzureIotHubConnectionString"));
+            var commandMessage = new Message(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(req)));
+                
+            await serviceClient.SendAsync(req.DeviceId, commandMessage);
+
+            _logger.LogInformation("Cloud2Device message sent!");
 
             //string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             //AirConditioner data = JsonConvert.DeserializeObject<AirConditioner>(requestBody);
             stateACController = JsonConvert.SerializeObject(req);
+
+            _logger.LogInformation("Blob Storage Saved!");
+
             return new OkObjectResult(stateACController);
         }
     }
