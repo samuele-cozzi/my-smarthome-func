@@ -12,23 +12,23 @@ using Newtonsoft.Json;
 
 namespace SmartHome.Functions
 {
-    public class HttpTriggerWithOpenAPIConfiguration
+    public class HttpTriggerWithOpenAPIHome
     {
-        private readonly ILogger<HttpTriggerWithOpenAPIConfiguration> _logger;
+        private readonly ILogger<HttpTriggerWithOpenAPIHome> _logger;
 
-        public HttpTriggerWithOpenAPIConfiguration(ILogger<HttpTriggerWithOpenAPIConfiguration> log)
+        public HttpTriggerWithOpenAPIHome(ILogger<HttpTriggerWithOpenAPIHome> log)
         {
             _logger = log;
         }
 
-        [FunctionName("HttpTriggerWithOpenAPIConfiguration")]
+        [FunctionName("HttpTriggerWithOpenAPIHome")]
         [StorageAccount("AzureStateStorage")]
         [OpenApiOperation(operationId: "Run", tags: new[] { "name" })]
-        [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(HomeConfiguration))]
-        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
+        [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(Home))]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(string), Description = "The OK response")]
         public async Task<IActionResult> Run(
-            [Blob("home-state/home_configuration", FileAccess.ReadWrite)] string state,
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get","post", Route = null)] HttpRequest req
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
+            [Blob("home-state/home", FileAccess.ReadWrite)] string state
         )
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
@@ -38,12 +38,12 @@ namespace SmartHome.Functions
             }
             else if (req.Method == HttpMethod.Post.ToString()){
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-                HomeConfiguration data = JsonConvert.DeserializeObject<HomeConfiguration>(requestBody);
+                Home data = JsonConvert.DeserializeObject<Home>(requestBody);
                 state = JsonConvert.SerializeObject(data);
                 return new OkObjectResult(state);
             }
             else {
-
+                _logger.LogError("Method not found");
                 return new NotFoundObjectResult("Method not found");
             }
         }
