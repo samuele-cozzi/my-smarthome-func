@@ -28,19 +28,20 @@ namespace SmartHome.Functions
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(string), Description = "The OK response")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
-            [Blob("home-state/home", FileAccess.ReadWrite)] string state
+            [Blob("home-state/home", FileAccess.Read)] string reader,
+            [Blob("home-state/home", FileAccess.Write)] TextWriter writer
         )
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
 
             if (req.Method == HttpMethod.Get.ToString()){
-                return new OkObjectResult(state);
+                return new OkObjectResult(reader);
             }
             else if (req.Method == HttpMethod.Post.ToString()){
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
                 Home data = JsonConvert.DeserializeObject<Home>(requestBody);
-                state = JsonConvert.SerializeObject(data);
-                return new OkObjectResult(state);
+                await writer.WriteLineAsync(JsonConvert.SerializeObject(data));
+                return new OkObjectResult("OK");
             }
             else {
                 _logger.LogError("Method not found");
