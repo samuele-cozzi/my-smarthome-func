@@ -22,7 +22,8 @@ namespace SmartHome.Functions
         [StorageAccount("AzureStateStorage")]
         public void Run(
             [IoTHubTrigger("iothub-ehub-iot-smarth-21108025-eb589840ae", Connection = "AzureIotHub")]EventData message, 
-            [Blob("home-state/home", FileAccess.ReadWrite)] string stateHome,
+            [Blob("home-state/home", FileAccess.Read)] string reader,
+            [Blob("home-state/home", FileAccess.Write)] TextWriter writer,
             [Blob("home-state/thermostat/{SystemProperties.iothub-connection-device-id}", FileAccess.Write)] out string stateThermostat,
             [Blob("home-state/hystory/{enqueuedTimeUtc.Year}/{enqueuedTimeUtc.Month}/{enqueuedTimeUtc.Day}/{enqueuedTimeUtc.Hour}:{enqueuedTimeUtc.Minute}-home", FileAccess.Write)] out string stateHistory,
             DateTime enqueuedTimeUtc,
@@ -63,18 +64,18 @@ namespace SmartHome.Functions
 
             // 3. Write Home
 
-            var home = JsonConvert.DeserializeObject<Home>(stateHome);
+            var home = JsonConvert.DeserializeObject<Home>(reader);
 
             home.Thermostats.RemoveAll(x => x.deviceId == DeviceID);
             home.Thermostats.Add(thermostat);
             
-            stateHome = JsonConvert.SerializeObject(home);
+            writer.WriteLine(JsonConvert.SerializeObject(home));
 
             log.LogInformation($"Home Saved");
 
             // 4. Write History
             
-            stateHistory = stateHome;
+            stateHistory = JsonConvert.SerializeObject(home);
 
             log.LogInformation($"History Saved");
 

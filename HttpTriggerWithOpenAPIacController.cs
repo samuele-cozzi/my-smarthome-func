@@ -29,7 +29,8 @@ namespace SmartHome.Functions
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] AirConditioner req,
             [Blob("home-state/ac-controller/{DeviceId}", FileAccess.Write)] TextWriter stateACController,
-            [Blob("home-state/home", FileAccess.ReadWrite)] string stateHome
+            [Blob("home-state/home", FileAccess.Read)] string reader,
+            [Blob("home-state/home", FileAccess.Write)] TextWriter writer
         )
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
@@ -45,12 +46,12 @@ namespace SmartHome.Functions
             //AirConditioner data = JsonConvert.DeserializeObject<AirConditioner>(requestBody);
             await stateACController.WriteLineAsync(JsonConvert.SerializeObject(req));
 
-            var home = JsonConvert.DeserializeObject<Home>(stateHome);
+            var home = JsonConvert.DeserializeObject<Home>(reader);
 
             home.AirConditioners.RemoveAll(x => x.DeviceId == req.DeviceId);
             home.AirConditioners.Add(req);
             
-            stateHome = JsonConvert.SerializeObject(home);
+            writer.WriteLine(JsonConvert.SerializeObject(home));
 
             _logger.LogInformation("Blob Storage Saved!");
 
