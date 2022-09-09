@@ -27,15 +27,15 @@ namespace SmartHome.Functions
         [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(AirConditioner))]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(string), Description = "The OK response")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
-            [Blob("home-state/ac-controller/{DeviceId}", FileAccess.Write)] string stateACController
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] AirConditioner req,
+            [Blob("home-state/ac-controller/{DeviceId}", FileAccess.ReadWrite)] string stateACController
         )
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            AirConditioner data = JsonConvert.DeserializeObject<AirConditioner>(requestBody);
-            stateACController = JsonConvert.SerializeObject(data);
+            //string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            //AirConditioner data = JsonConvert.DeserializeObject<AirConditioner>(requestBody);
+            stateACController = JsonConvert.SerializeObject(req);
             return new OkObjectResult(stateACController);
         }
     }
