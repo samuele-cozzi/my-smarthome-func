@@ -29,26 +29,28 @@ namespace SmartHome.Functions
         public async Task<IActionResult> Run(
             [Blob("home-state/home_configuration", FileAccess.Read)] string reader,
             [Blob("home-state/home_configuration", FileAccess.Write)] TextWriter writer,
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get","post", Route = null)] HttpRequest req
+            [HttpTrigger(AuthorizationLevel.Anonymous,"post", Route = null)] HttpRequest req
         )
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
 
-            if (req.Method == HttpMethod.Get.ToString()){
-                HomeConfiguration data = JsonConvert.DeserializeObject<HomeConfiguration>(reader);
-                await writer.WriteLineAsync(JsonConvert.SerializeObject(data));
-                return new OkObjectResult(reader);
-            }
-            else if (req.Method == HttpMethod.Post.ToString()){
-                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-                HomeConfiguration data = JsonConvert.DeserializeObject<HomeConfiguration>(requestBody);
-                await writer.WriteLineAsync(JsonConvert.SerializeObject(data));
-                return new OkObjectResult("OK");
-            }
-            else {
+            //-----------------------------------------------------------------------------
 
-                return new NotFoundObjectResult("Method not found");
-            }
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            HomeConfiguration data = JsonConvert.DeserializeObject<HomeConfiguration>(requestBody);
+            await writer.WriteLineAsync(JsonConvert.SerializeObject(data));
+
+            //-----------------------------------------------------------------------------
+
+            var home = JsonConvert.DeserializeObject<Home>(reader);
+            home.Configuration = data;            
+            writer.WriteLine(JsonConvert.SerializeObject(home));
+
+            _logger.LogInformation("Blob Storage Home Saved!");
+
+            //-----------------------------------------------------------------------------
+
+            return new OkObjectResult("OK");
         }
     }
 }

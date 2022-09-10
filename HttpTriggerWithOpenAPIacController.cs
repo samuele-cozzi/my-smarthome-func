@@ -34,26 +34,41 @@ namespace SmartHome.Functions
         )
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
+            var home = JsonConvert.DeserializeObject<Home>(reader);
             
+            //-----------------------------------------------------------------------------
+            var iotAC = new HomeIotHubAirConditioner(){
+                enabled = Convert.ToInt32(home.Configuration.Enabled),
+                interval = home.Configuration.IntervalThermostat,
+                power = Convert.ToInt32(req.Power),
+                mode = req.Mode,
+                temperature = Convert.ToInt32(Math.Round(req.Temp)),
+                fan = req.Fan
+            };
+
             var serviceClient = ServiceClient.CreateFromConnectionString(Environment.GetEnvironmentVariable("AzureIotHubConnectionString"));
-            var commandMessage = new Message(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(req)));
+            var commandMessage = new Message(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(iotAC)));
                 
             await serviceClient.SendAsync(req.DeviceId, commandMessage);
 
             _logger.LogInformation("Cloud2Device message sent!");
 
-            //string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            //AirConditioner data = JsonConvert.DeserializeObject<AirConditioner>(requestBody);
+            //-----------------------------------------------------------------------------
+
             await stateACController.WriteLineAsync(JsonConvert.SerializeObject(req));
 
-            var home = JsonConvert.DeserializeObject<Home>(reader);
+            _logger.LogInformation("Blob Storage Air Conditioner Saved!");
+
+            //-----------------------------------------------------------------------------
 
             home.AirConditioners.RemoveAll(x => x.DeviceId == req.DeviceId);
             home.AirConditioners.Add(req);
             
             writer.WriteLine(JsonConvert.SerializeObject(home));
 
-            _logger.LogInformation("Blob Storage Saved!");
+            _logger.LogInformation("Blob Storage Home Saved!");
+
+            //-----------------------------------------------------------------------------
 
             return new OkObjectResult("OK");
         }

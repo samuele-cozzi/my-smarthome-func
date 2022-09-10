@@ -49,7 +49,7 @@ namespace SmartHome.Functions
 
             // 2. Write Thermostat
 
-            var thermostatIoT = JsonConvert.DeserializeObject<HomeIotHub>(Encoding.UTF8.GetString(message.Body));
+            var thermostatIoT = JsonConvert.DeserializeObject<HomeIotHubThermostat>(Encoding.UTF8.GetString(message.Body));
 
             var thermostat = new Thermostat(){
                 deviceId = DeviceID,

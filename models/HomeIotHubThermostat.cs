@@ -1,6 +1,6 @@
 namespace home.api.models;
 
-public class HomeIotHub {
+public class HomeIotHubThermostat {
     public int msgCount { get; set; }
     public int temperature { get; set; }
     public int humidity { get; set; }
