@@ -27,7 +27,7 @@ namespace SmartHome.Functions
         [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(HomeConfiguration))]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
         public async Task<IActionResult> Run(
-            [Blob("home-state/home_configuration", FileAccess.Read)] string reader,
+            [Blob("home-state/home", FileAccess.Read)] string reader,
             [Blob("home-state/home_configuration", FileAccess.Write)] TextWriter writer,
             [HttpTrigger(AuthorizationLevel.Anonymous,"post", Route = null)] HttpRequest req
         )
