@@ -10,7 +10,7 @@ namespace SmartHome.Functions
         }
 
         [FunctionName("TimerTriggerACController")]
-        public void Run([TimerTrigger("0 0 20 * Jan Mon")]TimerInfo myTimer, ILogger log,
+        public void Run([TimerTrigger("0 */20 * * * *")]TimerInfo myTimer, ILogger log,
             [Blob("home-state/home", FileAccess.Read)] string reader, 
             [Blob("home-state/home", FileAccess.Write)] TextWriter writer)
         {
