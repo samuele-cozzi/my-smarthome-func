@@ -10,9 +10,11 @@ namespace SmartHome.Functions
         }
 
         [FunctionName("TimerTriggerACController")]
-        public void Run([TimerTrigger("0 */20 * * * *")]TimerInfo myTimer, ILogger log,
+        [StorageAccount("AzureStateStorage")]
+        public void Run([TimerTrigger("0 */20 * * * *")]TimerInfo myTimer,
             [Blob("home-state/home", FileAccess.Read)] string reader, 
-            [Blob("home-state/home", FileAccess.Write)] TextWriter writer)
+            [Blob("home-state/home", FileAccess.Write)] TextWriter writer,
+            ILogger log)
         {
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
