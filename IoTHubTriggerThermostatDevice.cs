@@ -66,6 +66,8 @@ namespace SmartHome.Functions
 
             var home = JsonConvert.DeserializeObject<Home>(reader);
 
+            home.Configuration.LastUpdateDate = TimeZoneInfo.ConvertTime(DateTime.Now, 
+                TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time")); 
             home.Thermostats.RemoveAll(x => x.deviceId == DeviceID);
             home.Thermostats.Add(thermostat);
             
