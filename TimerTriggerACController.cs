@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace SmartHome.Functions
 {
     public class TimerTriggerACController
@@ -22,7 +24,7 @@ namespace SmartHome.Functions
 
             Home home = JsonConvert.DeserializeObject<Home>(reader);
 
-            if (home.Configuration.Enabled){
+            if (this.ThermostatEnabled(home.Configuration)){
                 switch(home.Configuration.Mode) 
                 {
                     case "Autumn":
@@ -50,6 +52,48 @@ namespace SmartHome.Functions
 
 
             //-----------------------------------------------------------------------------
+        }
+
+        private bool ThermostatEnabled (HomeConfiguration conf){
+            bool timeEnabled = true;
+
+            try {
+                DateTime timeStart = DateTime.ParseExact(conf.StartTime, "HH:mm", CultureInfo.CreateSpecificCulture("it-IT"));
+                DateTime timeEnd = DateTime.ParseExact(conf.EndTime, "HH:mm", CultureInfo.CreateSpecificCulture("it-IT"));
+
+                _logger.LogInformation($"Hour Start {timeStart}");
+                _logger.LogInformation($"Hour End {timeEnd}");
+                _logger.LogInformation($"Hour Now {DateTime.Now}");
+
+                if (timeStart.Hour < timeEnd.Hour){
+                    if (DateTime.Now.Hour >= timeStart.Hour && DateTime.Now.Hour <= timeEnd.Hour){
+                        timeEnabled = true;
+                    }
+                    else {
+                        timeEnabled = false;
+                    }
+                }
+                else {
+                    if (DateTime.Now.Hour <= timeStart.Hour && DateTime.Now.Hour >= timeEnd.Hour){
+                        timeEnabled = true;
+                    }
+                    else {
+                        timeEnabled = false;
+                    }
+                }
+            }
+            catch (Exception e){
+                _logger.LogError($"Error in StartTime or EndTime: {e.Message}");
+                timeEnabled = true;
+            }
+            
+
+            if (conf.Enabled && timeEnabled){
+                return true;
+            }
+            else {
+                return false;
+            }
         }
 
         private void AutumnMode (Home home){
