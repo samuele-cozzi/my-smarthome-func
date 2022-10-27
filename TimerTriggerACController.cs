@@ -58,8 +58,8 @@ namespace SmartHome.Functions
             bool timeEnabled = true;
 
             try {
-                DateTime timeStart = DateTime.ParseExact(conf.StartTime, "HH:mm", CultureInfo.CreateSpecificCulture("it-IT"));
-                DateTime timeEnd = DateTime.ParseExact(conf.EndTime, "HH:mm", CultureInfo.CreateSpecificCulture("it-IT"));
+                DateTime timeStart = DateTime.ParseExact(conf.StartTime, "HH:mm", CultureInfo.CreateSpecificCulture("it-IT")).ToUniversalTime();
+                DateTime timeEnd = DateTime.ParseExact(conf.EndTime, "HH:mm", CultureInfo.CreateSpecificCulture("it-IT")).ToUniversalTime();
 
                 log.LogInformation($"Hour Start {timeStart}");
                 log.LogInformation($"Hour End {timeEnd}");
