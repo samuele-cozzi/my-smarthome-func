@@ -24,7 +24,7 @@ namespace SmartHome.Functions
 
             Home home = JsonConvert.DeserializeObject<Home>(reader);
 
-            if (this.ThermostatEnabled(home.Configuration)){
+            if (this.ThermostatEnabled(home.Configuration, log)){
                 switch(home.Configuration.Mode) 
                 {
                     case "Autumn":
@@ -54,16 +54,16 @@ namespace SmartHome.Functions
             //-----------------------------------------------------------------------------
         }
 
-        private bool ThermostatEnabled (HomeConfiguration conf){
+        private bool ThermostatEnabled (HomeConfiguration conf, ILogger log){
             bool timeEnabled = true;
 
             try {
                 DateTime timeStart = DateTime.ParseExact(conf.StartTime, "HH:mm", CultureInfo.CreateSpecificCulture("it-IT"));
                 DateTime timeEnd = DateTime.ParseExact(conf.EndTime, "HH:mm", CultureInfo.CreateSpecificCulture("it-IT"));
 
-                _logger.LogInformation($"Hour Start {timeStart}");
-                _logger.LogInformation($"Hour End {timeEnd}");
-                _logger.LogInformation($"Hour Now {DateTime.Now}");
+                log.LogInformation($"Hour Start {timeStart}");
+                log.LogInformation($"Hour End {timeEnd}");
+                log.LogInformation($"Hour Now {DateTime.Now}");
 
                 if (timeStart.Hour < timeEnd.Hour){
                     if (DateTime.Now.Hour >= timeStart.Hour && DateTime.Now.Hour <= timeEnd.Hour){
@@ -83,7 +83,7 @@ namespace SmartHome.Functions
                 }
             }
             catch (Exception e){
-                _logger.LogError($"Error in StartTime or EndTime: {e.Message}");
+                log.LogError($"Error in StartTime or EndTime: {e.Message}");
                 timeEnabled = true;
             }
             
