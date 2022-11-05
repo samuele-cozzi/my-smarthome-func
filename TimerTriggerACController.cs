@@ -155,8 +155,11 @@ namespace SmartHome.Functions
             var serviceClient = ServiceClient.CreateFromConnectionString(Environment.GetEnvironmentVariable("AzureIotHubConnectionString"));
             var commandMessage = new Message(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(iotAC)));
                 
-            await serviceClient.SendAsync(deviceId, commandMessage);
-
+            for (int i = 0; i < 3; i++) {
+                await serviceClient.SendAsync(deviceId, commandMessage);
+                System.Threading.Thread.Sleep(1000);
+            }
+            
             _logger.LogInformation("Cloud2Device message sent!");
 
         } 
