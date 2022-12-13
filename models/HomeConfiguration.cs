@@ -1,9 +1,9 @@
 namespace home.api.models;
 
 public class HomeConfiguration {
-    public int TargetHumidity { get; set; }
-    public int TargetTemperature { get; set; }
-    public int TemperatureTolerance { get; set; }
+    public double TargetHumidity { get; set; }
+    public double TargetTemperature { get; set; }
+    public double TemperatureTolerance { get; set; }
     public int IntervalThermostat { get; set; }
     public bool Enabled { get; set; }
     public DateTime LastUpdateDate { get; set; }
