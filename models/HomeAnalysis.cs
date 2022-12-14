@@ -12,7 +12,7 @@ public class HomeAnalysis {
     public string ACMode { get; set; }
     public int? ACFan { get; set; }
 
-    public int TargetHumidity { get; set; }
-    public int TargetTemperature { get; set; }
-    public int TargetHeatIndex { get; set; }
+    public double TargetHumidity { get; set; }
+    public double TargetTemperature { get; set; }
+    public double TargetHeatIndex { get; set; }
 }
