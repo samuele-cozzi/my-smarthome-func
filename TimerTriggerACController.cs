@@ -103,7 +103,7 @@ namespace SmartHome.Functions
         }
 
         private void AutumnMode (Home home){
-            var temperature = home.Thermostats.FirstOrDefault().temperature;
+            var temperature = home.Thermostats.FirstOrDefault().heatIndex;
             foreach (var ac in home.AirConditioners){
                 if (ac.Power){
                     if (temperature >= home.Configuration.TargetTemperature){
@@ -120,7 +120,7 @@ namespace SmartHome.Functions
         }
 
         private void SpringMode (Home home){
-            var temperature = home.Thermostats.FirstOrDefault().temperature;
+            var temperature = home.Thermostats.FirstOrDefault().heatIndex;
             foreach (var ac in home.AirConditioners){
                 if (ac.Power){
                     if (temperature <= home.Configuration.TargetTemperature){
