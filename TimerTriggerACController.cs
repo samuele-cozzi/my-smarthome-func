@@ -129,7 +129,7 @@ namespace SmartHome.Functions
                 }
                 else
                 {
-                    if (temperature >= home.Configuration.TargetTemperature - home.Configuration.TemperatureTolerance){
+                    if (temperature >= home.Configuration.TargetTemperature + home.Configuration.TemperatureTolerance){
                         SendAirConditionerCommand(home, ac.DeviceId, true);
                     }
                 }
