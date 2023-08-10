@@ -12,6 +12,7 @@
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="4.0.5" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
+    <PackageReference Include="OneSignalApi" Version="2.0.2" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

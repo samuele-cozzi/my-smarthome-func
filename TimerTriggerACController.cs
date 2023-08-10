@@ -1,4 +1,7 @@
 using System.Globalization;
+using OneSignalApi.Api;
+using OneSignalApi.Client;
+using OneSignalApi.Model;
 
 namespace SmartHome.Functions
 {
@@ -159,12 +162,41 @@ namespace SmartHome.Functions
                 await serviceClient.SendAsync(deviceId, commandMessage);
                 System.Threading.Thread.Sleep(1000);
             }
+
+            SendPushNotification();
             
             _logger.LogInformation("Cloud2Device message sent!");
 
         } 
 
-        
+        private async void SendPushNotification () {
+
+            OneSignalApi.Client.Configuration config = new OneSignalApi.Client.Configuration();
+            config.BasePath = "https://onesignal.com/api/v1";
+            // Configure Bearer token for authorization: app_key
+            config.AccessToken = Environment.GetEnvironmentVariable("OnesignalToken");
+
+            var apiInstance = new DefaultApi(config);
+            // Create and send notification to all subscribed users
+            var notification = new Notification(appId: Environment.GetEnvironmentVariable("OnesignalAppid"))
+            {                
+                Contents = new StringMap(en: "Hello World from .NET!"),
+                IncludedSegments = new List<string> { "Subscribed Users" }
+            };
+
+            try
+            {
+                // Create notification
+                CreateNotificationSuccessResponse result = apiInstance.CreateNotification(notification);
+                _logger.LogInformation($"Notification created for {result.Recipients} recipients");
+            }
+            catch (ApiException  e)
+            {
+                _logger.LogInformation("Exception when calling DefaultApi.CreateNotification: " + e.Message );
+                _logger.LogInformation("Status Code: "+ e.ErrorCode);
+                _logger.LogInformation(e.StackTrace);
+            }
+        }
 
         private void SaveHome(TextWriter writer, Home home) {
             
