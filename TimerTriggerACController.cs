@@ -163,24 +163,25 @@ namespace SmartHome.Functions
                 System.Threading.Thread.Sleep(1000);
             }
 
-            SendPushNotification();
+            SendPushNotification(power);
             
             _logger.LogInformation("Cloud2Device message sent!");
 
         } 
 
-        private async void SendPushNotification () {
+        private async void SendPushNotification (bool power) {
 
             OneSignalApi.Client.Configuration config = new OneSignalApi.Client.Configuration();
             config.BasePath = "https://onesignal.com/api/v1";
             // Configure Bearer token for authorization: app_key
             config.AccessToken = Environment.GetEnvironmentVariable("OnesignalToken");
-
             var apiInstance = new DefaultApi(config);
+
             // Create and send notification to all subscribed users
+            string message = (power) ? "The air conditioner was powered ON" : "The air conditioner was powered OFF";
             var notification = new Notification(appId: Environment.GetEnvironmentVariable("OnesignalAppid"))
             {                
-                Contents = new StringMap(en: "Hello World from .NET!"),
+                Contents = new StringMap(en: message),
                 IncludedSegments = new List<string> { "Subscribed Users" }
             };
 
